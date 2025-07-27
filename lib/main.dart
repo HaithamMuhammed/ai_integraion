@@ -24,7 +24,7 @@ void main() async {
       providers: [
         BlocProvider(
             create: (context) => WeatherCubitCubit(WeatherRepository())),
-        BlocProvider(create: (context) => AipredictorCubit()),
+        BlocProvider(create: (context) => AIPredictorCubit()),
       ],
       child: MyApp(),
     ),

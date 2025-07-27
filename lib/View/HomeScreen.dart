@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +16,6 @@ import 'package:new_ai_project/View/Widgets/DetailsForCard.dart';
 import 'package:new_ai_project/View/Widgets/Gnav.dart';
 import 'package:new_ai_project/View/Widgets/Graph.dart';
 import 'package:new_ai_project/View/Widgets/Steps.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -52,18 +51,21 @@ class _HomeScreenState extends State<HomeScreen> {
     int tempHot = weather.currentTemp >= 30 ? 1 : 0;
     int tempMild =
         (weather.currentTemp >= 20 && weather.currentTemp < 30) ? 1 : 0;
-    int humidityNormal =
-        1; // Hardcoded; replace if you have real humidity logic
+    int humidityNormal = 1;
     return [outlookRainy, outlookSunny, tempHot, tempMild, humidityNormal];
   }
 
   Widget _buildHomeTabContent(Map<String, dynamic> currentDayData) {
-    return BlocListener<AipredictorCubit, AipredictorState>(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return BlocListener<AIPredictorCubit, AIPredictorState>(
       listener: (context, state) {
         if (state is AIPredictorLoaded) {
+          print('AI prediction received: ${state.prediction}');
           final result = state.prediction == 1
-              ? '🎾 Will Play Tennis'
-              : '❌ Will NOT Play Tennis';
+              ? ' Will Play Tennis'
+              : ' Will NOT Play Tennis';
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
@@ -101,21 +103,25 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, state) {
           return SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 10),
+                  SizedBox(height: screenHeight * 0.015),
                   TextField(
                     controller: _controller,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       hintText: "Search for a city...",
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      prefixIcon:
-                          const Icon(Icons.search, color: Colors.white70),
+                      hintStyle: TextStyle(
+                        color: Colors.white54,
+                        fontSize: screenWidth * 0.04,
+                      ),
+                      prefixIcon: Icon(Icons.search,
+                          color: Colors.white70, size: screenWidth * 0.06),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.search, color: Colors.white70),
+                        icon: Icon(Icons.search,
+                            color: Colors.white70, size: screenWidth * 0.06),
                         onPressed: () async {
                           final city = _controller.text.trim();
                           if (city.isNotEmpty) {
@@ -128,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 await repo.fetchForecastWeather(city);
                             final features = convertWeatherToFeatures(weather);
                             context
-                                .read<AipredictorCubit>()
+                                .read<AIPredictorCubit>()
                                 .predictTennis(features);
                           }
                         },
@@ -149,26 +155,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       filled: true,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: screenHeight * 0.025),
                   if (state is WeatherLoading) ...[
                     const CircularProgressIndicator(),
                   ] else if (state is WeatherSuccess) ...[
                     Text(
                       state.weather.cityName,
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      style: TextStyle(
+                          color: Colors.white, fontSize: screenWidth * 0.05),
                     ),
                     Text(
                       "${state.weather.currentTemp}°C",
-                      style: TextStyle(color: Colors.white, fontSize: 36),
+                      style: TextStyle(
+                          color: Colors.white, fontSize: screenWidth * 0.1),
                     ),
                   ] else if (state is WeatherError) ...[
-                    Text('Error: ${state.message}',
-                        style: TextStyle(color: Colors.redAccent)),
+                    Text(
+                      'Error: ${state.message}',
+                      style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: screenWidth * 0.045),
+                    ),
                   ] else ...[
-                    Text("Search for a city to see weather",
-                        style: TextStyle(color: Colors.white)),
+                    Text(
+                      "Search for a city to see weather",
+                      style: TextStyle(
+                          color: Colors.white, fontSize: screenWidth * 0.045),
+                    ),
                   ],
-                  const SizedBox(height: 20),
+                  SizedBox(height: screenHeight * 0.025),
                   DateSelectorWidget(
                     selectedDayIndex: _selectedDayIndex,
                     onDaySelected: (index) {
@@ -177,17 +192,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       });
                     },
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(height: screenHeight * 0.03),
                   StepsTrackerWidget(steps: currentDayData['steps']),
-                  const SizedBox(height: 30),
+                  SizedBox(height: screenHeight * 0.03),
                   MetricCardsWidget(
                     km: currentDayData['km'],
                     heartRate: currentDayData['heartRate'],
                     cal: currentDayData['cal'],
                   ),
-                  const SizedBox(height: 30),
+                  SizedBox(height: screenHeight * 0.03),
                   GraphWidget(graphPoints: currentDayData['graphPoints']),
-                  const SizedBox(height: 20),
+                  SizedBox(height: screenHeight * 0.02),
                 ],
               ),
             ),

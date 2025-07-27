@@ -1,19 +1,19 @@
 part of 'aipredictor_cubit.dart';
 
 @immutable
-abstract class AipredictorState {}
+abstract class AIPredictorState {}
 
-class AipredictorInitial extends AipredictorState {}
+class AIPredictorInitial extends AIPredictorState {}
 
-class AIPredictorLoading extends AipredictorState {}
+class AIPredictorLoading extends AIPredictorState {}
 
-class AIPredictorLoaded extends AipredictorState {
+class AIPredictorLoaded extends AIPredictorState {
   final int prediction;
 
   AIPredictorLoaded(this.prediction);
 }
 
-class AIPredictorError extends AipredictorState {
+class AIPredictorError extends AIPredictorState {
   final String message;
 
   AIPredictorError(this.message);
